@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Buddha Experience</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; background: #000; }
+        /* 1. Full-Screen Visuals */
+        #bg-video { position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1; }
+        
+        /* 3. Glassmorphism UI */
+        .chat-overlay {
+            position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
+            width: 85%; max-width: 450px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 25px; padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white; text-align: center;
+        }
+        #waveform { width: 100%; height: 50px; stroke: gold; fill: none; display: none; }
+        .mic-btn { background: #ffd700; border: none; border-radius: 50%; width: 60px; height: 60px; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<img id="bg-video" src="ඔබේ_රූපයේ_ලින්ක්_එක" alt="Buddha Scene">
+
+<div class="chat-overlay">
+    <div id="response-text">සම්මා සම්බුදු සරණයි. මගෙන් ඕනෑම දෙයක් අසන්න.</div>
+    <svg id="waveform" viewBox="0 0 100 20"><path d="M0 10 Q 25 0 50 10 T 100 10" stroke="gold" stroke-width="2"/></svg>
+    <button class="mic-btn" onclick="startListening()">🎤</button>
+</div>
+
+<script>
+    // 2. Voice Logic (Sinhala Auto-Speak)
+    function speak(text) {
+        const synth = window.speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'si-LK';
+        utterance.pitch = 0.8;
+        utterance.rate = 0.85;
+
+        // Waveform එක පෙන්වීම
+        document.getElementById('waveform').style.display = 'block';
+        utterance.onend = () => document.getElementById('waveform').style.display = 'none';
+
+        synth.speak(utterance);
+    }
+
+    // Voice Trigger (Speech Recognition)
+    function startListening() {
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'si-LK';
+        recognition.start();
+
+        recognition.onresult = (event) => {
+            const query = event.results[0][0].transcript;
+            document.getElementById('response-text').innerText = "ඔබ: " + query;
+            
+            // මෙතැනදී AI API එකට Query එක යවා උත්තරය ලබාගත හැක
+            // දැනට උදාහරණයක් ලෙස:
+            setTimeout(() => {
+                const reply = "පින්වත, සිත සන්සුන් කරගන්න. සියල්ල අනිත්‍යයයි.";
+                document.getElementById('response-text').innerText = reply;
+                speak(reply);
+            }, 1000);
+        };
+    }
+</script>
+</body>
+</html>
