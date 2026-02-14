@@ -3,64 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dhamma AI - Muchalinda Experience</title>
+    <title>Dhamma AI - Immersive Experience</title>
     <style>
-        :root { --gold: #ffd700; --glass: rgba(0, 0, 0, 0.55); }
+        :root { --gold: #ffd700; --glass: rgba(0, 0, 0, 0.6); }
         body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, sans-serif; }
         
-        /* 1. Full-Screen Visuals (ඔබ එවූ රූපය) */
-        #scene-container {
+        /* 1. Full-Screen Background Image */
+        #bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6)), 
-                        url('https://share.google/ljlslIeTtDI0BIjxV'); /* පින්තූරය මෙතැනට */
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7)), 
+                        url('https://i.ibb.co/6J1ghkGr/IMG-5368.jpg');
             background-size: cover; background-position: center; z-index: -1;
         }
 
-        /* 3. Minimalist Text UI (Glassmorphism) */
+        /* 2. Glassmorphism Chat Box */
         .chat-container {
             position: absolute; bottom: 130px; left: 50%; transform: translateX(-50%);
-            width: 88%; max-width: 460px; padding: 22px;
+            width: 88%; max-width: 460px; padding: 25px;
             background: var(--glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border-radius: 28px; border: 1px solid rgba(255, 215, 0, 0.15);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.7); color: white; text-align: center;
+            border-radius: 30px; border: 1px solid rgba(255, 215, 0, 0.2);
+            box-shadow: 0 15px 45px rgba(0,0,0,0.8); color: white; text-align: center;
         }
 
-        #response-text { font-size: 1.05rem; line-height: 1.6; margin-bottom: 10px; font-weight: 400; }
+        #response-text { font-size: 1.1rem; line-height: 1.7; margin-bottom: 15px; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
 
-        /* 4. Golden Waveform (AI කතා කරන විට පමණක් පෙනේ) */
-        .waveform {
-            display: flex; justify-content: center; align-items: flex-end; gap: 4px; height: 35px; margin: 10px 0; display: none;
-        }
+        /* 3. Golden Waveform Animation */
+        .wave-container { display: flex; justify-content: center; align-items: flex-end; gap: 4px; height: 35px; margin: 10px 0; display: none; }
         .bar { width: 3px; background: var(--gold); border-radius: 10px; animation: bounce 0.6s infinite alternate; }
         @keyframes bounce { from { height: 5px; } to { height: 25px; } }
 
-        /* Interaction UI */
-        .input-area {
-            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 480px; display: flex; align-items: center; gap: 12px;
-        }
+        /* 4. Interaction Controls */
+        .controls { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 480px; display: flex; gap: 12px; align-items: center; }
         
-        input {
-            flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.2);
-            padding: 14px 22px; border-radius: 35px; color: white; outline: none; backdrop-filter: blur(10px);
+        input { 
+            flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,215,0,0.25);
+            padding: 15px 22px; border-radius: 35px; color: white; outline: none; backdrop-filter: blur(10px); font-size: 1rem;
         }
 
-        .mic-btn {
-            width: 58px; height: 58px; border-radius: 50%; border: none;
-            background: rgba(255, 215, 0, 0.8); color: black; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 0 15px rgba(255,215,0,0.3);
+        .mic-btn { 
+            width: 60px; height: 60px; border-radius: 50%; border: none; 
+            background: var(--gold); color: black; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 24px;
+            box-shadow: 0 0 20px rgba(255,215,0,0.4); transition: 0.3s;
         }
-        .mic-btn.listening { background: #ff4444; color: white; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7); } 100% { box-shadow: 0 0 0 15px rgba(255, 68, 68, 0); } }
+        .mic-btn.active { background: #ff4444; color: white; box-shadow: 0 0 25px rgba(255,68,68,0.6); }
     </style>
 </head>
 <body>
 
-<div id="scene-container"></div>
+<div id="bg"></div>
 
 <div class="chat-container">
-    <div id="response-text">සම්මා සම්බුදු සරණයි! පින්වත, සිතේ ඇති ගැටලුව විමසන්න...</div>
-    <div class="waveform" id="visualizer">
+    <div id="response-text">සම්මා සම්බුදු සරණයි! පින්වත, සිත සන්සුන් කරගෙන ඔබේ ගැටලුව විමසන්න...</div>
+    <div class="wave-container" id="visualizer">
         <div class="bar" style="animation-delay: 0.1s"></div>
         <div class="bar" style="animation-delay: 0.3s"></div>
         <div class="bar" style="animation-delay: 0.5s"></div>
@@ -69,56 +64,51 @@
     </div>
 </div>
 
-<div class="input-area">
-    <button class="mic-btn" id="mic-trigger">🎤</button>
+<div class="controls">
+    <button class="mic-btn" id="start-btn">🎤</button>
     <input type="text" id="type-input" placeholder="සිංහලෙන් අසන්න...">
 </div>
 
-<audio id="bg-music" loop src="https://www.soundjay.com/nature/rain-01.mp3"></audio>
+<audio id="ambient" loop src="https://www.soundjay.com/nature/rain-01.mp3"></audio>
 
 <script>
-    const micBtn = document.getElementById('mic-trigger');
+    const startBtn = document.getElementById('start-btn');
     const responseText = document.getElementById('response-text');
     const visualizer = document.getElementById('visualizer');
-    const bgMusic = document.getElementById('bg-music');
+    const ambient = document.getElementById('ambient');
 
-    // 2. The Voice Logic (Sinhala Deep Calm Male Voice)
+    // Speech Synthesis - Deep Calm Male Voice
     function speak(text) {
         const synth = window.speechSynthesis;
         const msg = new SpeechSynthesisUtterance(text);
-        
         msg.lang = 'si-LK';
-        msg.pitch = 0.8;  // Deep tone
-        msg.rate = 0.85;  // Calm pace
+        msg.pitch = 0.8;
+        msg.rate = 0.85;
 
-        // AI කතා කරන විට Waveform එක පෙන්වන්න
         visualizer.style.display = 'flex';
         msg.onend = () => visualizer.style.display = 'none';
-        
         synth.speak(msg);
     }
 
-    // Interaction Trigger
-    micBtn.onclick = () => {
-        // පළමු වරට ක්ලික් කළ විට පසුබිම් ශබ්දය ආරම්භ වේ
-        bgMusic.volume = 0.1;
-        bgMusic.play();
-
+    // Mic Interaction
+    startBtn.onclick = () => {
+        ambient.volume = 0.1;
+        ambient.play();
+        
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = 'si-LK';
+        startBtn.classList.add('active');
         
-        recognition.onstart = () => micBtn.classList.add('listening');
-        recognition.onend = () => micBtn.classList.remove('listening');
-
-        recognition.onresult = (event) => {
-            const userSpeech = event.results[0][0].transcript;
-            responseText.innerText = "ඔබ: " + userSpeech;
+        recognition.onresult = (e) => {
+            const query = e.results[0][0].transcript;
+            responseText.innerText = "ඔබ: " + query;
+            startBtn.classList.remove('active');
             
-            // AI Response (පසුව සැබෑ API එකක් මෙතැනට සම්බන්ධ කළ හැක)
+            // Mock Response (Replace with real API later)
             setTimeout(() => {
-                const reply = "පින්වත, ජීවිතයේ සියල්ල අනිත්‍යයයි. ඉවසීමෙන් සහ මෛත්‍රියෙන් යුතුව කටයුතු කරන්න.";
+                const reply = "පින්වත, ලොව සියල්ල අනිත්‍යයයි. සිත සන්සුන් කරගෙන මෛත්‍රියෙන් යුතුව වාසය කරන්න.";
                 responseText.innerText = reply;
-                speak(reply); // Auto-Speak Trigger
+                speak(reply);
             }, 1000);
         };
         recognition.start();
