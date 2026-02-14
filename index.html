@@ -3,50 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dhamma AI - Immersive</title>
+    <title>Dhamma AI - Live</title>
     <style>
         :root { --gold: #ffd700; --glass: rgba(0, 0, 0, 0.7); }
-        body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
         
-        /* Immersive Background */
         #bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8)), 
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.8)), 
                         url('https://i.ibb.co/6J1ghkGr/IMG-5368.jpg') no-repeat center center;
             background-size: cover; z-index: -1;
         }
 
-        /* Glassmorphism UI */
         .chat-container {
-            position: absolute; bottom: 150px; left: 50%; transform: translateX(-50%);
-            width: 85%; max-width: 450px; padding: 25px;
-            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-radius: 25px; border: 1px solid rgba(255, 215, 0, 0.2);
-            box-shadow: 0 10px 50px rgba(0,0,0,0.9); color: white; text-align: center;
+            position: absolute; bottom: 140px; left: 50%; transform: translateX(-50%);
+            width: 88%; max-width: 460px; padding: 25px;
+            background: var(--glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border-radius: 30px; border: 1px solid rgba(255, 215, 0, 0.2);
+            box-shadow: 0 15px 45px rgba(0,0,0,0.8); color: white; text-align: center;
         }
 
-        #output { font-size: 1.1rem; line-height: 1.7; min-height: 50px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        #output { font-size: 1.1rem; line-height: 1.7; margin-bottom: 15px; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
 
-        /* Golden Waveform Animation */
-        .wave { display: flex; justify-content: center; align-items: flex-end; gap: 4px; height: 30px; margin: 15px 0; display: none; }
+        .wave { display: flex; justify-content: center; align-items: flex-end; gap: 4px; height: 35px; margin: 15px 0; display: none; }
         .bar { width: 3px; background: var(--gold); border-radius: 10px; animation: bounce 0.6s infinite alternate; }
         @keyframes bounce { from { height: 5px; } to { height: 25px; } }
 
-        /* Interaction Controls */
-        .controls { position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 480px; display: flex; justify-content: center; }
-        .mic-btn { width: 65px; height: 65px; border-radius: 50%; border: none; background: var(--gold); cursor: pointer; font-size: 26px; box-shadow: 0 0 25px rgba(255,215,0,0.4); transition: 0.3s; }
-        .mic-btn:active { transform: scale(0.9); }
+        .controls { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 480px; display: flex; gap: 12px; align-items: center; }
+        .mic-btn { width: 65px; height: 65px; border-radius: 50%; border: none; background: var(--gold); cursor: pointer; font-size: 26px; box-shadow: 0 0 20px rgba(255,215,0,0.4); }
     </style>
 </head>
 <body>
 
 <div id="bg"></div>
-
 <div class="chat-container">
-    <div id="output">Samma Sambudu Saranai! Please tap the mic and speak...</div>
+    <div id="output">සම්මා සම්බුදු සරණයි! පින්වත, ඔබගේ ගැටලුව විමසන්න...</div>
     <div class="wave" id="wave">
-        <div class="bar"></div><div class="bar" style="animation-delay: 0.2s"></div>
-        <div class="bar" style="animation-delay: 0.4s"></div><div class="bar"></div>
+        <div class="bar" style="animation-delay: 0.1s"></div>
+        <div class="bar" style="animation-delay: 0.3s"></div>
+        <div class="bar" style="animation-delay: 0.5s"></div>
+        <div class="bar" style="animation-delay: 0.2s"></div>
+        <div class="bar" style="animation-delay: 0.4s"></div>
     </div>
 </div>
 
@@ -55,62 +52,52 @@
 </div>
 
 <script>
-    // Your verified API Key
     const API_KEY = "AIzaSyAB4EVp2-dvCi8DrsSz-X3xHdjUxraCKUo";
 
-    async function fetchAI(text) {
+    async function askGemini(question) {
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: "You are a peaceful Buddhist assistant. Answer kindly in Sinhala language, starting with 'Pinwatha'. Keep it short. Question: " + text }] }]
+                    contents: [{ parts: [{ text: "Answer this in Sinhala as a Buddhist assistant: " + question }] }]
                 })
             });
             const data = await response.json();
+            
+            // පින්වත, මෙන්න මේ පේළියෙන් තමයි AI එකේ උත්තරය ගන්නේ
             if (data.candidates && data.candidates[0].content) {
                 return data.candidates[0].content.parts[0].text;
             } else {
-                throw new Error("Invalid API Response");
+                return "API Error: " + JSON.stringify(data.error); 
             }
         } catch (error) {
-            console.error(error);
-            return "Sammawanna Pinwatha, I couldn't connect. Please try again.";
+            return "Connection Error: " + error.message;
         }
     }
 
     function speak(text) {
-        const synth = window.speechSynthesis;
         const msg = new SpeechSynthesisUtterance(text);
         msg.lang = 'si-LK';
         msg.pitch = 0.8;
         msg.rate = 0.9;
-        
-        const wave = document.getElementById('wave');
-        wave.style.display = 'flex';
-        msg.onend = () => wave.style.display = 'none';
-        synth.speak(msg);
+        document.getElementById('wave').style.display = 'flex';
+        msg.onend = () => document.getElementById('wave').style.display = 'none';
+        window.speechSynthesis.speak(msg);
     }
 
-    const startBtn = document.getElementById('start-btn');
-    const outputDiv = document.getElementById('output');
-
-    startBtn.onclick = () => {
-        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'si-LK';
-        
-        recognition.onstart = () => { outputDiv.innerText = "Listening..."; };
-        
-        recognition.onresult = async (event) => {
-            const userText = event.results[0][0].transcript;
-            outputDiv.innerText = "Processing...";
-            const aiReply = await fetchAI(userText);
-            outputDiv.innerText = aiReply;
-            speak(aiReply);
+    document.getElementById('start-btn').onclick = () => {
+        const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        rec.lang = 'si-LK';
+        rec.onstart = () => { document.getElementById('output').innerText = "සවන් දෙමින් පවතියි..."; };
+        rec.onresult = async (e) => {
+            const query = e.results[0][0].transcript;
+            document.getElementById('output').innerText = "සිතමින් පවතියි...";
+            const reply = await askGemini(query);
+            document.getElementById('output').innerText = reply;
+            speak(reply);
         };
-
-        recognition.onerror = () => { outputDiv.innerText = "Error accessing mic. Try again."; };
-        recognition.start();
+        rec.start();
     };
 </script>
 </body>
