@@ -6,48 +6,57 @@
     <title>Dhamma AI</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: sans-serif; }
+        
+        /* රූපය අනිවාර්යයෙන් පෙන්වීමට background style එක වෙනස් කළා */
         #bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.8)), 
-                        url('https://i.ibb.co/6J1ghkGr/IMG-5368.jpg') no-repeat center center;
-            background-size: cover; z-index: -1;
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.8)), 
+                              url('https://i.ibb.co/6J1ghkGr/IMG-5368.jpg');
+            background-size: cover; background-position: center; z-index: -1;
         }
+
         .container {
-            position: absolute; bottom: 150px; left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: 160px; left: 50%; transform: translateX(-50%);
             width: 85%; max-width: 450px; padding: 25px;
-            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px);
+            background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-radius: 25px; border: 1px solid #ffd700; color: #fff; text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
+
+        #out { font-size: 1.1rem; line-height: 1.6; }
+
         .mic-btn {
-            position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%);
-            width: 70px; height: 70px; border-radius: 50%; border: none;
-            background: #ffd700; font-size: 30px; cursor: pointer; box-shadow: 0 0 20px rgba(255,215,0,0.5);
+            position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);
+            width: 75px; height: 75px; border-radius: 50%; border: none;
+            background: #ffd700; font-size: 32px; cursor: pointer; 
+            box-shadow: 0 0 25px rgba(255,215,0,0.5); transition: 0.3s;
         }
     </style>
 </head>
 <body>
     <div id="bg"></div>
     <div class="container">
-        <div id="out">සම්මා සම්බුදු සරණයි! මයික් එක ඔබා කතා කරන්න.</div>
+        <div id="out">සම්මා සම්බුදු සරණයි! පින්වත, මයික් එක ඔබා ඔබේ ගැටලුව පවසන්න...</div>
     </div>
     <button class="mic-btn" id="btn">🎤</button>
 
 <script>
+    // ඔබේ API Key එක මෙහි නිවැරදිව ඇත
     const API_KEY = "AIzaSyAB4EVp2-dvCi8DrsSz-X3xHdjUxraCKUo";
 
     async function askAI(q) {
-        // මෙහිදී අපි flash 1.5 පාවිච්චි කරමු (පරණ API එකේ error එක හරිගස්සා ඇත)
+        // ඉතාමත් ස්ථාවර gemini-1.5-flash මාදිලිය භාවිතා කරමු
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
         try {
             const res = await fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contents: [{ parts: [{ text: "පින්වත කියා අමතා සිංහලෙන් කෙටි පිළිතුරක් දෙන්න: " + q }] }] })
+                body: JSON.stringify({ contents: [{ parts: [{ text: "Answer in Sinhala as a kind Buddhist assistant, start with 'Pinwatha': " + q }] }] })
             });
             const data = await res.json();
             return data.candidates[0].content.parts[0].text;
         } catch (e) {
-            return "සමාවන්න, නැවත උත්සාහ කරන්න.";
+            return "සමාවන්න පින්වත, නැවත උත්සාහ කරන්න.";
         }
     }
 
@@ -55,12 +64,15 @@
         const s = window.speechSynthesis;
         const m = new SpeechSynthesisUtterance(t);
         m.lang = 'si-LK';
+        m.pitch = 0.9;
+        m.rate = 0.9;
         s.speak(m);
     }
 
     document.getElementById('btn').onclick = () => {
         const r = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         r.lang = 'si-LK';
+        r.onstart = () => { document.getElementById('out').innerText = "සවන් දෙමින් පවතියි..."; };
         r.onresult = async (e) => {
             const txt = e.results[0][0].transcript;
             document.getElementById('out').innerText = "සිතමින් පවතියි...";
