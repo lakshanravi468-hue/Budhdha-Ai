@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dhamma AI - Immersive Experience</title>
+    <title>Dhamma AI - Live</title>
     <style>
-        :root { --gold: #ffd700; --glass: rgba(0, 0, 0, 0.6); }
-        body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        :root { --gold: #ffd700; --glass: rgba(0, 0, 0, 0.65); }
+        body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
         
-        /* 1. Full-Screen Background Image */
+        /* Background Image from your link */
         #bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7)), 
@@ -16,46 +16,35 @@
             background-size: cover; background-position: center; z-index: -1;
         }
 
-        /* 2. Glassmorphism Chat Box */
-        .chat-container {
-            position: absolute; bottom: 130px; left: 50%; transform: translateX(-50%);
+        /* Glassmorphism Chat Box */
+        .chat-box {
+            position: absolute; bottom: 140px; left: 50%; transform: translateX(-50%);
             width: 88%; max-width: 460px; padding: 25px;
             background: var(--glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             border-radius: 30px; border: 1px solid rgba(255, 215, 0, 0.2);
             box-shadow: 0 15px 45px rgba(0,0,0,0.8); color: white; text-align: center;
         }
 
-        #response-text { font-size: 1.1rem; line-height: 1.7; margin-bottom: 15px; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+        #output { font-size: 1.1rem; line-height: 1.7; margin-bottom: 15px; text-shadow: 0 2px 8px rgba(0,0,0,0.5); max-height: 300px; overflow-y: auto; }
 
-        /* 3. Golden Waveform Animation */
-        .wave-container { display: flex; justify-content: center; align-items: flex-end; gap: 4px; height: 35px; margin: 10px 0; display: none; }
+        /* Golden Waveform */
+        .wave { display: flex; justify-content: center; align-items: flex-end; gap: 4px; height: 35px; margin: 15px 0; display: none; }
         .bar { width: 3px; background: var(--gold); border-radius: 10px; animation: bounce 0.6s infinite alternate; }
         @keyframes bounce { from { height: 5px; } to { height: 25px; } }
 
-        /* 4. Interaction Controls */
-        .controls { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 480px; display: flex; gap: 12px; align-items: center; }
-        
-        input { 
-            flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,215,0,0.25);
-            padding: 15px 22px; border-radius: 35px; color: white; outline: none; backdrop-filter: blur(10px); font-size: 1rem;
-        }
-
-        .mic-btn { 
-            width: 60px; height: 60px; border-radius: 50%; border: none; 
-            background: var(--gold); color: black; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; font-size: 24px;
-            box-shadow: 0 0 20px rgba(255,215,0,0.4); transition: 0.3s;
-        }
-        .mic-btn.active { background: #ff4444; color: white; box-shadow: 0 0 25px rgba(255,68,68,0.6); }
+        /* Controls */
+        .controls { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 480px; display: flex; gap: 12px; }
+        input { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,215,0,0.3); padding: 15px 22px; border-radius: 35px; color: white; outline: none; backdrop-filter: blur(10px); }
+        .mic-btn { width: 60px; height: 60px; border-radius: 50%; border: none; background: var(--gold); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 0 20px rgba(255,215,0,0.4); }
     </style>
 </head>
 <body>
 
 <div id="bg"></div>
 
-<div class="chat-container">
-    <div id="response-text">සම්මා සම්බුදු සරණයි! පින්වත, සිත සන්සුන් කරගෙන ඔබේ ගැටලුව විමසන්න...</div>
-    <div class="wave-container" id="visualizer">
+<div class="chat-box">
+    <div id="output">සම්මා සම්බුදු සරණයි! පින්වත, සිත සන්සුන් කරගෙන ඔබේ ගැටලුව විමසන්න...</div>
+    <div class="wave" id="wave">
         <div class="bar" style="animation-delay: 0.1s"></div>
         <div class="bar" style="animation-delay: 0.3s"></div>
         <div class="bar" style="animation-delay: 0.5s"></div>
@@ -65,53 +54,56 @@
 </div>
 
 <div class="controls">
-    <button class="mic-btn" id="start-btn">🎤</button>
+    <button class="mic-btn" id="btn">🎤</button>
     <input type="text" id="type-input" placeholder="සිංහලෙන් අසන්න...">
 </div>
 
 <audio id="ambient" loop src="https://www.soundjay.com/nature/rain-01.mp3"></audio>
 
 <script>
-    const startBtn = document.getElementById('start-btn');
-    const responseText = document.getElementById('response-text');
-    const visualizer = document.getElementById('visualizer');
-    const ambient = document.getElementById('ambient');
+    const API_KEY = "AIzaSyAB4EVp2-dvCi8DrsSz-X3xHdjUxraCKUo"; // ඔබේ API Key එක ඇතුළත් කර ඇත
 
-    // Speech Synthesis - Deep Calm Male Voice
+    async function askGemini(question) {
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: "ඔබ බුදු දහම පිළිබඳ උපදෙස් දෙන ශාන්ත AI සහායකයෙකි. පින්වත යනුවෙන් අමතමින් ඉතාමත් කාරුණිකව සිංහලෙන් පිළිතුරු දෙන්න. පිළිතුර කෙටි සහ පැහැදිලි විය යුතුය. ප්‍රශ්නය: " + question }] }]
+                })
+            });
+            const data = await response.json();
+            return data.candidates[0].content.parts[0].text;
+        } catch (error) {
+            return "සමාවන්න පින්වත, පිළිතුර ලබා ගැනීමට අපහසු විය. නැවත උත්සාහ කරන්න.";
+        }
+    }
+
     function speak(text) {
         const synth = window.speechSynthesis;
         const msg = new SpeechSynthesisUtterance(text);
         msg.lang = 'si-LK';
         msg.pitch = 0.8;
-        msg.rate = 0.85;
-
-        visualizer.style.display = 'flex';
-        msg.onend = () => visualizer.style.display = 'none';
+        msg.rate = 0.9;
+        document.getElementById('wave').style.display = 'flex';
+        msg.onend = () => document.getElementById('wave').style.display = 'none';
         synth.speak(msg);
     }
 
-    // Mic Interaction
-    startBtn.onclick = () => {
-        ambient.volume = 0.1;
-        ambient.play();
+    document.getElementById('btn').onclick = () => {
+        document.getElementById('ambient').volume = 0.1;
+        document.getElementById('ambient').play();
         
-        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'si-LK';
-        startBtn.classList.add('active');
-        
-        recognition.onresult = (e) => {
+        const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        rec.lang = 'si-LK';
+        rec.onresult = async (e) => {
             const query = e.results[0][0].transcript;
-            responseText.innerText = "ඔබ: " + query;
-            startBtn.classList.remove('active');
-            
-            // Mock Response (Replace with real API later)
-            setTimeout(() => {
-                const reply = "පින්වත, ලොව සියල්ල අනිත්‍යයයි. සිත සන්සුන් කරගෙන මෛත්‍රියෙන් යුතුව වාසය කරන්න.";
-                responseText.innerText = reply;
-                speak(reply);
-            }, 1000);
+            document.getElementById('output').innerText = "සිතමින් පවතියි...";
+            const reply = await askGemini(query);
+            document.getElementById('output').innerText = reply;
+            speak(reply);
         };
-        recognition.start();
+        rec.start();
     };
 </script>
 </body>
