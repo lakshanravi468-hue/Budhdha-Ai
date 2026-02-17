@@ -3,56 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clear Dhamma 3D</title>
+    <title>Dhamma AI Final</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
-
-        /* පින්තූරය Clear පේන්න background-size එක 'contain' කළා */
-        #bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://i.ibb.co/6J1ghkGr/IMG-5368.jpg') no-repeat center center;
-            background-size: contain; /* මෙතන 'contain' දැම්මම මුළු පින්තූරයම පැහැදිලිව පේනවා */
-            z-index: 1;
-        }
-
-        /* වැසි පොද (Rain Effect) - වඩාත් පැහැදිලි වැහි බිංදු */
-        .rain {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: transparent url('https://www.transparenttextures.com/patterns/stardust.png');
-            opacity: 0.2;
-            animation: rainMove 1s linear infinite;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        @keyframes rainMove {
-            from { background-position: 0 0; }
-            to { background-position: 10% 100%; }
-        }
-
-        /* මැද තියෙන Box එක (Blur එක අඩු කරලා පැහැදිලි කළා) */
-        .glass-box {
-            position: absolute; bottom: 80px; left: 50%;
-            transform: translateX(-50%);
-            width: 80%; max-width: 400px; padding: 20px;
-            background: rgba(0, 0, 0, 0.6); /* කළු පාටට හුරු නිසා අකුරු Clear පේනවා */
-            border: 2px solid #ffd700; border-radius: 20px;
-            color: #fff; text-align: center; font-family: sans-serif;
-            z-index: 3; box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
-        }
-
-        .gold { color: #ffd700; font-size: 22px; font-weight: bold; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: sans-serif; }
+        #bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url('https://i.ibb.co/6J1ghkGr/IMG-5368.jpg') no-repeat center center; background-size: cover; z-index: 1; }
+        .rain { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url('https://www.transparenttextures.com/patterns/stardust.png'); opacity: 0.3; animation: rain 0.8s linear infinite; z-index: 2; pointer-events: none; }
+        @keyframes rain { from { background-position: 0 0; } to { background-position: 10% 100%; } }
+        .box { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 420px; padding: 25px; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); border: 1px solid #ffd700; border-radius: 25px; color: #fff; text-align: center; z-index: 3; }
+        .mic { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; border-radius: 50%; border: none; background: #ffd700; font-size: 30px; cursor: pointer; z-index: 4; box-shadow: 0 0 20px rgba(255,215,0,0.5); }
     </style>
 </head>
 <body>
-
     <div id="bg"></div>
     <div class="rain"></div>
+    <div class="box"><div id="out">සම්මා සම්බුදු සරණයි! මයික් එක ඔබා කතා කරන්න.</div></div>
+    <button class="mic" id="btn">🎤</button>
 
-    <div class="glass-box">
-        <div class="gold">සම්මා සම්බුදු සරණයි!</div>
-        <p>දැන් පින්තූරය පැහැදිලිද පින්වත?</p>
-    </div>
+<script>
+    const API_KEY = "AIzaSyAB4EVp2-dvCi8DrsSz-X3xHdjUxraCKUo";
 
+    async function askAI(q) {
+        try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contents: [{ parts: [{ text: "පින්වත කියා අමතා ඉතා කෙටියෙන් සිංහලෙන් පිළිතුරු දෙන්න: " + q }] }] })
+            });
+            const data = await res.json();
+            return data.candidates[0].content.parts[0].text;
+        } catch (e) { return "සමාවන්න, නැවත උත්සාහ කරන්න."; }
+    }
+
+    function speak(t) {
+        const msg = new SpeechSynthesisUtterance(t);
+        msg.lang = 'si-LK';
+        window.speechSynthesis.speak(msg);
+    }
+
+    document.getElementById('btn').onclick = () => {
+        const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        rec.lang = 'si-LK';
+        rec.onstart = () => { document.getElementById('out').innerText = "ඔබට සවන් දෙමි..."; };
+        rec.onresult = async (e) => {
+            const q = e.results[0][0].transcript;
+            document.getElementById('out').innerText = "සිතමින් පවතියි...";
+            const a = await askAI(q);
+            document.getElementById('out').innerText = a;
+            speak(a);
+        };
+        rec.start();
+    };
+</script>
 </body>
 </html>
