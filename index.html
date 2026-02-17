@@ -3,81 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Dhamma Experience</title>
+    <title>Clear Dhamma 3D</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
 
-        /* 3D පසුබිම සහ පින්තූරය */
-        #canvas-container {
+        /* පින්තූරය Clear පේන්න background-size එක 'contain' කළා */
+        #bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: url('https://i.ibb.co/6J1ghkGr/IMG-5368.jpg') no-repeat center center;
-            background-size: cover;
-            transform: scale(1.1); /* පොඩි 3D Zoom එකක් */
-            filter: brightness(0.7) contrast(1.2);
+            background-size: contain; /* මෙතන 'contain' දැම්මම මුළු පින්තූරයම පැහැදිලිව පේනවා */
             z-index: 1;
         }
 
-        /* වැසි බිංදු (Rain Effect) */
+        /* වැසි පොද (Rain Effect) - වඩාත් පැහැදිලි වැහි බිංදු */
         .rain {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://www.transparenttextures.com/patterns/stardust.png'); /* වැහි පොද වගේ පේන්න */
-            opacity: 0.3;
-            animation: rainAnimation 0.5s linear infinite;
+            background: transparent url('https://www.transparenttextures.com/patterns/stardust.png');
+            opacity: 0.2;
+            animation: rainMove 1s linear infinite;
             z-index: 2;
             pointer-events: none;
         }
 
-        @keyframes rainAnimation {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 20% 100%; }
+        @keyframes rainMove {
+            from { background-position: 0 0; }
+            to { background-position: 10% 100%; }
         }
 
-        /* 3D Glass Box එක */
+        /* මැද තියෙන Box එක (Blur එක අඩු කරලා පැහැදිලි කළා) */
         .glass-box {
-            position: absolute;
-            bottom: 100px; left: 50%;
-            transform: translateX(-50%) translateZ(50px);
-            width: 85%; max-width: 450px;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 40px;
-            border: 1px solid rgba(255, 215, 0, 0.4);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,215,0,0.2);
-            color: #fff; text-align: center;
-            z-index: 3;
-            font-family: 'Segoe UI', sans-serif;
+            position: absolute; bottom: 80px; left: 50%;
+            transform: translateX(-50%);
+            width: 80%; max-width: 400px; padding: 20px;
+            background: rgba(0, 0, 0, 0.6); /* කළු පාටට හුරු නිසා අකුරු Clear පේනවා */
+            border: 2px solid #ffd700; border-radius: 20px;
+            color: #fff; text-align: center; font-family: sans-serif;
+            z-index: 3; box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
         }
 
-        .gold-text {
-            color: #ffd700;
-            font-weight: bold;
-            text-shadow: 0 0 10px rgba(255,215,0,0.8);
-            font-size: 1.2rem;
-        }
-
-        /* පාවෙන ගතිය (Floating Animation) */
-        .floating {
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-15px); }
-        }
+        .gold { color: #ffd700; font-size: 22px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="canvas-container"></div>
+    <div id="bg"></div>
     <div class="rain"></div>
 
-    <div class="glass-box floating">
-        <div class="gold-text">සම්මා සම්බුදු සරණයි!</div>
-        <p style="opacity: 0.8; font-size: 0.9rem; margin-top: 10px;">
-            වැහි පොද වැටෙන සන්සුන් පරිසරයක 3D අත්දැකීම...
-        </p>
+    <div class="glass-box">
+        <div class="gold">සම්මා සම්බුදු සරණයි!</div>
+        <p>දැන් පින්තූරය පැහැදිලිද පින්වත?</p>
     </div>
 
 </body>
