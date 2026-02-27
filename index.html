@@ -3,84 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lord Moxie AI</title>
+    <title>Budhdha AI - Immersive</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #0a0a0a; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
         
-        /* රූපය ලෝඩ් වෙනකම් පේන ලස්සන පසුබිම */
+        /* රූපය මුළු Screen එකේම ලස්සනට පේන්න */
         #bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, #1a1a1a, #000);
-            background-image: url('https://i.ibb.co/6J1ghkGr/IMG-5368.jpg');
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: contain; /* මෙතන 'contain' දැම්මම රූපය කැපෙන්නෙ නැතුව සම්පූර්ණයෙන් පේනවා */
-            z-index: -1;
-            transition: opacity 1s ease-in;
+            background: url('https://i.postimg.cc/mD700zR8/IMG-5368.jpg') no-repeat center center;
+            background-size: cover; z-index: -1;
         }
 
+        /* වැසි බිංදු පේන්න */
         .rain {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: url('https://www.transparenttextures.com/patterns/stardust.png');
-            opacity: 0.2; animation: rain 1s linear infinite; z-index: 1; pointer-events: none;
+            opacity: 0.3; animation: rain 0.8s linear infinite; z-index: 1; pointer-events: none;
         }
         @keyframes rain { from { background-position: 0 0; } to { background-position: 10% 100%; } }
 
         .glass-box {
-            position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%);
-            width: 80%; max-width: 400px; padding: 25px;
-            background: rgba(0, 0, 0, 0.8); border: 1.5px solid #ffd700; border-radius: 30px;
+            position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%);
+            width: 85%; max-width: 420px; padding: 25px;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px);
+            border: 1.5px solid #ffd700; border-radius: 30px;
             color: #fff; text-align: center; z-index: 10; font-family: sans-serif;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
         }
 
         .mic-btn {
-            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
-            width: 75px; height: 75px; border-radius: 50%; border: none;
-            background: #ffd700; font-size: 35px; cursor: pointer; z-index: 11;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: 80px; height: 80px; border-radius: 50%; border: none;
+            background: radial-gradient(circle, #ffd700, #b8860b);
+            font-size: 35px; cursor: pointer; z-index: 11;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
         }
     </style>
 </head>
 <body>
+
     <div id="bg"></div>
     <div class="rain"></div>
+
+    <audio id="rainSound" loop>
+        <source src="https://www.soundjay.com/nature/rain-01.mp3" type="audio/mpeg">
+    </audio>
+
     <div class="glass-box">
-        <div id="out">සම්මා සම්බුදු සරණයි! <br> රූපය ලෝඩ් වන තෙක් රැඳී සිටින්න...</div>
+        <div id="out">සම්මා සම්බුදු සරණයි! <br> වැස්සේ සද්දය සමඟ සන්සුන්ව කතා කරන්න.</div>
     </div>
+
     <button class="mic-btn" id="btn">🎤</button>
 
 <script>
-    const API_KEY = "AIzaSyAB4EVp2-dvCi8DrsSz-X3xHdjUxraCKUo";
-
-    // AI මොළය සම්බන්ධ කිරීම
-    async function askAI(q) {
-        try {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contents: [{ parts: [{ text: "Answer shortly in Sinhala: " + q }] }] })
-            });
-            const data = await res.json();
-            return data.candidates[0].content.parts[0].text;
-        } catch (e) { return "නැවත උත්සාහ කරන්න."; }
-    }
-
+    const audio = document.getElementById('rainSound');
+    
+    // මයික් එක ඔබපු ගමන් සද්දේ පටන් ගන්නවා (Browser privacy නිසා)
     document.getElementById('btn').onclick = () => {
+        audio.play(); // වැස්සේ සද්දේ Play කරනවා
+        
         const r = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         r.lang = 'si-LK';
         r.onstart = () => { document.getElementById('out').innerText = "ඔබට සවන් දෙමි..."; };
         r.onresult = async (e) => {
             const txt = e.results[0][0].transcript;
             document.getElementById('out').innerText = "සිතමින් පවතියි...";
-            const reply = await askAI(txt);
-            document.getElementById('out').innerText = reply;
-            const msg = new SpeechSynthesisUtterance(reply);
-            msg.lang = 'si-LK';
-            window.speechSynthesis.speak(msg);
+            
+            // Gemini AI API එක මෙතනට පස්සේ සෙට් කරමු
+            document.getElementById('out').innerText = "ඔබ පැවසුවේ: " + txt;
         };
         r.start();
     };
-</script> 
+</script>
 </body>
 </html>
