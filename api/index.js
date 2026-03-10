@@ -8,10 +8,9 @@ export default async function handler(req, res) {
 
   try {
     const { question } = req.body;
-    // ඔයා එවපු අලුත්ම API Key එක
     const API_KEY = "AIzaSyBAh59EoEMRzeOyCg20nq3YHSC6aOWl7FY"; 
 
-    // අපි v1beta වෙනුවට stable v1 එක පාවිච්චි කරමු
+    // මෙතන v1beta වෙනුවට v1 විතරක් තියෙන්න ඕනේ
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
       {
@@ -29,11 +28,9 @@ export default async function handler(req, res) {
       const reply = data.candidates[0].content.parts[0].text;
       return res.status(200).json({ reply: reply });
     } else {
-      // මෙතනින් අපිට තවමත් අවුලක් තිබේ නම් බලාගත හැක
-      const errorMsg = data.error ? data.error.message : "Model mismatch";
-      return res.status(200).json({ reply: "Google Error: " + errorMsg });
+      return res.status(200).json({ reply: "පද්ධතියේ දෝෂයකි. නැවත උත්සාහ කරන්න." });
     }
   } catch (e) {
-    return res.status(200).json({ reply: "Server Connection Error" });
+    return res.status(200).json({ reply: "සම්බන්ධතාවය බිඳ වැටුණි." });
   }
 }
