@@ -1,16 +1,16 @@
-// api/index.js
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
 
   try {
     const { question } = req.body;
-    const API_KEY = "AIzaSyBAh59EoEMRzeOyCg20nq3YHSC6aOWl7FY"; 
+    const API_KEY = "AIzaSyBAh59EoEMRzeOyCg20nq3YHSC6aOWl7FY";
 
-    // මෙතන v1beta වෙනුවට v1 විතරක් තියෙන්න ඕනේ
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
       {
@@ -26,11 +26,11 @@ export default async function handler(req, res) {
 
     if (data.candidates && data.candidates[0].content) {
       const reply = data.candidates[0].content.parts[0].text;
-      return res.status(200).json({ reply:"ප්‍රතිඵලය:" reply });
+      return res.status(200).json({ reply: reply });
     } else {
-      return res.status(200).json({ reply: "පද්ධතියේ දෝෂයකි. නැවත උත්සාහ කරන්න." });
+      return res.status(200).json({ reply: "පද්ධතියේ දෝෂයකි. නැවත විමසන්න." });
     }
-  } catch (e) {
-    return res.status(200).json({ reply: "සම්බන්ධතාවය බිඳ වැටුණි." });
+  } catch (error) {
+    return res.status(200).json({ reply: "Server error occurred." });
   }
 }
