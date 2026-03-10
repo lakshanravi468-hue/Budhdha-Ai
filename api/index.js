@@ -26,7 +26,7 @@ export default async function handler(req, res) {
 
     if (data.candidates && data.candidates[0].content) {
       const reply = data.candidates[0].content.parts[0].text;
-      return res.status(200).json({ reply: reply });
+      return res.status(200).json({ reply:"ප්‍රතිඵලය:" reply });
     } else {
       return res.status(200).json({ reply: "පද්ධතියේ දෝෂයකි. නැවත උත්සාහ කරන්න." });
     }
