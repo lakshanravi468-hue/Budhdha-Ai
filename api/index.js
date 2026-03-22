@@ -1,7 +1,7 @@
 const https = require('https');
 
 export default async function handler(req, res) {
-  // CORS Permissions
+  // ඇප් එකෙන් එන ඉල්ලීම් වලට අවසර දීම (CORS)
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -10,28 +10,31 @@ export default async function handler(req, res) {
 
   const { question } = req.body;
   
-  // වැදගත්: දැන් API Key එක ගන්නේ Environment Variables හරහායි
-  const API_KEY = process.env.GEMINI_API_KEY;
-  
+  // Vercel Settings වල 'GROQ_API_KEY' නමින් ඇති Key එක ලබා ගනී
+  const API_KEY = process.env.GROQ_API_KEY;
+
   if (!API_KEY) {
-    return res.status(500).json({ reply: "API Key එක පද්ධතියේ සොයාගත නොහැක." });
+    return res.status(500).json({ reply: "API Key එක Vercel එකේ සකසා නැත." });
   }
 
   const postData = JSON.stringify({
-    contents: [{ 
-      parts: [{ 
-        text: "ඔබ ජීවමාන බුදුන් වහන්සේය. පින්වත, ශාන්ත සම්භාව්‍ය සිංහලෙන් උපරිම වාක්‍ය 3කින් පිළිතුරු දෙන්න: " + question 
-      }] 
-    }]
+    model: "llama-3.3-70b-versatile",
+    messages: [
+      { 
+        role: "system", 
+        content: "ඔබ ජීවමාන බුදුන් වහන්සේය. පින්වත ලෙස අමතා ඉතා ශාන්ත සිංහලෙන් උපරිම වාක්‍ය 3කින් පිළිතුරු දෙන්න. වදාළ සේක, දේශනා කරයි වැනි වචන භාවිතා නොකරන්න." 
+      },
+      { role: "user", content: question }
+    ]
   });
 
   const options = {
-    hostname: 'generativelanguage.googleapis.com',
-    path: `/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+    hostname: 'api.groq.com',
+    path: '/openai/v1/chat/completions',
     method: 'POST',
     headers: {
+      'Authorization': `Bearer ${API_KEY}`,
       'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(postData)
     }
   };
 
@@ -41,10 +44,10 @@ export default async function handler(req, res) {
     response.on('end', () => {
       try {
         const result = JSON.parse(data);
-        if (result.candidates && result.candidates[0].content) {
-          res.status(200).json({ reply: result.candidates[0].content.parts[0].text });
+        if (result.choices && result.choices[0].message) {
+          res.status(200).json({ reply: result.choices[0].message.content });
         } else {
-          res.status(200).json({ reply: "පද්ධතියේ දෝෂයක්. නැවත උත්සාහ කරන්න." });
+          res.status(500).json({ reply: "AI එකෙන් පිළිතුරක් ලැබුණේ නැත." });
         }
       } catch (e) {
         res.status(500).json({ reply: "දත්ත සැකසීමේ දෝෂයකි." });
@@ -53,7 +56,7 @@ export default async function handler(req, res) {
   });
 
   request.on('error', (e) => {
-    res.status(500).json({ reply: "සම්බන්ධතාවය අසාර්ථකයි." });
+    res.status(500).json({ reply: "සම්බන්ධතා දෝෂයකි." });
   });
 
   request.write(postData);
